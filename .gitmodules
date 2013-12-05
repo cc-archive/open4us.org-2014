@@ -1,0 +1,3 @@
+[submodule "docroot/wordpress"]
+	path = docroot/wordpress
+	url = https://github.com/WordPress/WordPress.git
