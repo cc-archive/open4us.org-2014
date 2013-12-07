@@ -2,7 +2,7 @@
 
 TOPDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-HOSTNAME=${1:-creativecommons.org}
+HOSTNAME=${1:-open4us.org}
 DBNAME=${2:-wordpress}
 DBUSER=${3:-dbuser}
 DBPASS=${4:-}
@@ -26,18 +26,22 @@ fi
 
 # 1. Copy config files into place
 
-if grep -q "apache.conf" /etc/apache2/httpd.conf
-then
-    echo "Note: /etc/apache2/httpd.conf seems to be loading an apache.conf file,"
-    echo "leaving it alone. If that's not the CC apache.conf file, then you'll"
-    echo "need to add the Include line manually."
-else
-    echo "Include ${TOPDIR}/config/apache.conf" >> /etc/apache2/httpd.conf
-fi
-
 cat <<EOF > /etc/apache2/sites-available/${HOSTNAME}
 <VirtualHost *:80>
-    Use CCVHost ${HOSTNAME} http ${TOPDIR} /var/log/apache2/${HOSTNAME}
+    ServerName ${HOSTNAME}
+    DocumentRoot ${TOPDIR}/docroot
+
+    ErrorLog /var/log/apache2/${HOSTNAME}/error.log
+    CustomLog /var/log/apache2/${HOSTNAME}/access.log combined
+
+    RewriteEngine On
+
+    # WordPress rules
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-d
+    RewriteRule . /index.php [L]
+
+    php_value upload_max_filesize 6M
 </VirtualHost>
 EOF
 
@@ -45,11 +49,23 @@ if [ -f /etc/ssl/private/${HOSTNAME}.key ]
 then
     cat <<EOF >> /etc/apache2/sites-available/${HOSTNAME}
 <VirtualHost *:443>
-    Use CCVHost ${HOSTNAME} https ${TOPDIR} /var/log/apache2/${HOSTNAME}
+    ServerName ${HOSTNAME}
+    DocumentRoot ${TOPDIR}/docroot
+
+    ErrorLog /var/log/apache2/${HOSTNAME}/error.log
+    CustomLog /var/log/apache2/${HOSTNAME}/access.log combined
+
     SSLEngine on
     SSLCertificateFile /etc/ssl/private/${HOSTNAME}.crt
     SSLCertificateKeyFile /etc/ssl/private/${HOSTNAME}.key
     SSLCACertificateFile /etc/ssl/certs/RapidSSL_CA_bundle.pem
+
+    # WordPress rules
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-d
+    RewriteRule . /index.php [L]
+
+    php_value upload_max_filesize 6M
 </VirtualHost>
 EOF
 fi
@@ -62,7 +78,7 @@ chmod 750 /var/log/apache2/${HOSTNAME}
 
 # 3. Enable mods and site
 
-for i in macro php5 rewrite ssl fcgid
+for i in php5 rewrite ssl
 do
     a2enmod $i
 done
