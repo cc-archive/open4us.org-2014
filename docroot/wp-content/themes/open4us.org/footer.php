@@ -32,7 +32,7 @@
 		<a href="http://creativecommons.org/licenses/by/4.0/"
 		   class="license_icon"
 		   title="Creative Commons Attribution 4.0 International License">
-		  <img src="http://i.creativecommons.org/l/by/3.0/88x31.png" alt="License">
+		  <img src="http://i.creativecommons.org/l/by/4.0/88x31.png" alt="License">
 		</a>
 		<div class="license_text_info" 
 		     xmlns:cc="http://creativecommons.org/ns#" about="http://open4us.org">
@@ -57,7 +57,7 @@
 		</p>
 		<p>
 		  <a href="http://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution 4.0 International License">
-		  <img src="http://i.creativecommons.org/l/by/3.0/88x31.png" alt="License">
+		  <img src="http://i.creativecommons.org/l/by/4.0/88x31.png" alt="License">
 		</a>
 		</p>
 	      </div>
